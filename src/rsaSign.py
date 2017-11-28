@@ -1,10 +1,10 @@
-from lib.rsa.src.helpers import Key, modExp 
+from lib.rsa.helpers import Key, modExp 
 from Crypto.Hash import SHA256 as SHA
 
 def hash(message, key):
-'''
-Hashes message to an element in ZN*.
-'''
+    '''
+    Hashes message to an element in ZN*.
+    '''
     if type(message) is not bytes:
         raise TypeError('message must be of type bytes')
     if type(key) is not Key:
@@ -15,9 +15,9 @@ Hashes message to an element in ZN*.
     return h % key.N
 
 def sign(message, key):
-'''
-Creates an RSA signature for message using key.
-'''
+    '''
+    Creates an RSA signature for message using key.
+    '''
     if type(message) is not bytes:
         raise TypeError('message must be of type bytes')
     if type(key) is not Key:
@@ -27,9 +27,9 @@ Creates an RSA signature for message using key.
     return modExp(hash(message, key), key)
 
 def validate(sig, message, key):
-'''
-Validates that sig is a valid signature for message.
-'''
+    '''
+    Validates that sig is a valid signature for message.
+    '''
     if type(message) is not bytes:
         raise TypeError('message must be of type bytes')
     if type(sig) is not int:
