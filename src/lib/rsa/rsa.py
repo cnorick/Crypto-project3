@@ -1,5 +1,5 @@
 import sys
-from helpers import Key, addRandom, removeRandom, modExp, getPrime, modInverse
+from .helpers import Key, addRandom, removeRandom, modExp, getPrime, modInverse
 from fractions import gcd
 
 def enc(m, key):
@@ -108,15 +108,11 @@ if __name__ == "__main__":
 
         key = keygen(int(numBits))
 
-        with open(publicFileName, 'w') as publicFile:
-            publicFile.write(str(key.numBits) + '\n')
-            publicFile.write(str(key.N) + '\n')
-            publicFile.write(str(key.e) + '\n')
+        pubKey = Key(key.numBits, key.N, e=key.e)
+        pubKey.write()
 
-        with open(secretFileName, 'w') as secretFile:
-            secretFile.write(str(key.numBits) + '\n')
-            secretFile.write(str(key.N) + '\n')
-            secretFile.write(str(key.d) + '\n')
+        privKey = Key(key.numBits, key.N, d=key.d)
+        privKey.write()
         
     else:
         (keyFileName, inputFileName, outputFileName) = sys.argv[2:5]

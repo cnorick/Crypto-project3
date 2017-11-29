@@ -19,6 +19,20 @@ class Key (object):
         self.e = e
         self.d = d
 
+    def write(self, filename):
+        '''
+        Writes the key to filename.
+        '''
+        with open(filname, 'w') as file:
+            file.write(str(self))
+
+    def __str__(self):
+        if self.e != None and self.d != None:
+            raise ValueError('Cannot write key that has both e and d set')
+        ed = self.e if self.e != None else self.d
+        return "{}\n{}\n{}\n".format(str(self.numBits), str(self.N), str(ed))
+
+
 def getRandom(r):
     '''
     Returns random int with r bits.
