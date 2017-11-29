@@ -40,6 +40,20 @@ def validate(sig, message, key):
     # s^e = H(m)modN
     return modExp(sig, key) == hash(message, key)
 
+def signFromFileToFile(messageFile, keyFile, outFile):
+    '''
+    Pulls the key and message from the specified files and writes the signature to outFile.
+    '''
+    with open(messageFile, 'r') as file:
+        message = bytes(file.read(), 'utf-8')
+
+    with open(keyFile, 'r') as file:
+        (numBits, N, d) = [int(line) for line in file.readlines()]
+        key = Key(numBits, N, d=d)
+
+    with open(outFile, 'w') as out:
+        out.write(str(sign(message, key)))
+
 def test():
     privKey = Key(12, 3233, d=413)
     pubKey = Key(12, 3233, e=17)
@@ -47,3 +61,5 @@ def test():
     s = sign(m, privKey)
     v = validate(s, m, pubKey)
     assert v == True
+
+signFromFileToFile('../test/message','../test/privkey', '../test/out')
