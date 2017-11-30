@@ -15,6 +15,15 @@ def hash(message, key):
     h = int.from_bytes(h, byteorder="big")
     return h % key.N
 
+def generateThumbprint(key):
+    '''
+    Generates a thumbprint for the given rsa key.
+    '''
+    if type(key) is not Key:
+        raise TypeError('key must be of type Key')
+        
+    return SHA.new(bytes(str(key), 'utf-8')).digest()
+
 def sign(message, key):
     '''
     Creates an RSA signature for message using key.
@@ -41,6 +50,10 @@ def validate(sig, message, key):
     # s^e = H(m)modN
     return modExp(sig, key) == hash(message, key)
 
+def signToFile(message, key, outFile):
+    with open(outFile, 'w') as out:
+        out.write(str(sign(message, key)))
+
 def signFromFileToFile(messageFile, keyFile, outFile):
     '''
     Pulls the key and message from the specified files and writes the signature to outFile.
@@ -52,8 +65,7 @@ def signFromFileToFile(messageFile, keyFile, outFile):
         (numBits, N, d) = [int(line) for line in file.readlines()]
         key = Key(numBits, N, d=d)
 
-    with open(outFile, 'w') as out:
-        out.write(str(sign(message, key)))
+    signToFile(message, key, outFile)
 
 def createCert(signer=None):
     '''
@@ -77,7 +89,7 @@ def createCert(signer=None):
         raise ValueError('signer must be a private key')
 
     # Sign the thumbprint of the public key file.
-    thumbprint = SHA.new(bytes(str(pubKey), 'utf-8')).digest()
+    thumbprint = generateThumbprint(pubKey)
     sig = sign(thumbprint, privKey)
 
     return (pubKey, privKey, sig)
