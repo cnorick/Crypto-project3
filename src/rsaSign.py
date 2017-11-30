@@ -67,7 +67,7 @@ def signFromFileToFile(messageFile, keyFile, outFile):
 
     signToFile(message, key, outFile)
 
-def createCert(signer=None):
+def createCert(signer=None, numBits = 516):
     '''
     Creates a public key, private key, and signature for the thumbprint of the public key, signed by signer.
     Returns (public key, private key, signature)
@@ -75,7 +75,6 @@ def createCert(signer=None):
     if signer is not None and type(signer) is not Key:
         raise TypeError('signer must be of type Key or None')
 
-    numBits = 256
     key = rsa.keygen(numBits)
     pubKey = Key(key.numBits, key.N, e=key.e)
     privKey = Key(key.numBits, key.N, d=key.d)

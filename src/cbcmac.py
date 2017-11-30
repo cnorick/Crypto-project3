@@ -1,8 +1,8 @@
 import lib.aes.cbc as cbc
 
-def cbcmacTag(message, key):
+def tag(message, key):
     '''
-    Generates a tag for the message using cbc-mac.
+    Generates a tag for the message using cbc-mac and key as aes key.
     '''
     if type(message) is not bytes:
         raise TypeError('message must be of type bytes')
@@ -15,15 +15,15 @@ def cbcmacTag(message, key):
     # Just use encrypt with IV=0.
     return cbc.encrypt(message, key, (0).to_bytes(cbc.blockSize, "big"))
 
-def cbcmacValidate(message, tag, key):
+def validate(message, t, key):
     '''
-    Checks that tag is a valid cbc-mac tag for the message.
+    Checks that t is a valid cbc-mac tag for the message.
     '''
-    return tag == cbcmacTag(message, key)
+    return t == tag(message, key)
 
 def test():
     m = b'hello'
     key = 'asdfalsdkfjasldkfjaddsfasdfahsdfhasdfh'
-    tag = cbcmacTag(m, key)
-    v = cbcmacValidate(m, tag, key)
+    tag = tag(m, key)
+    v = validate(m, tag, key)
     assert v
