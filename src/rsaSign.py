@@ -105,7 +105,7 @@ def createCert(signer=None, numBits = 516):
     return (pubKey, privKey, sig)
 
 
-def createCertToFile(pubKeyFileName, privKeyFileName, signer=None):
+def createCertToFile(pubKeyFileName, privKeyFileName, signer=None, numBits=516):
     '''
     Creates a certificate and saves it to keyFileName. Also creates a thumbprint of the cert, signed by privatekey signer.
     '''
@@ -128,12 +128,26 @@ def test():
     assert v == True
 
 if __name__ == '__main__':
-    if len(sys.argv) != 5:
-        print("usage: python rsaSign.py s | v keyFile messageFile signatureFile")
+    if len(sys.argv) not in (5,6):
+        print("usage: python rsaSign.py s | v keyFile messageFile signatureFile\
+        python rsaSign.py k publicKey privateKey [signatureFile] numBits")
         sys.exit()
 
-    (mode, keyFile, messageFile, signatureFile) = sys.argv[1:]
+    mode = sys.argv[1]
     if mode == 's':
+        (keyFile, messageFile, signatureFile) = sys.argv[2:]
         signFromFileToFile(messageFile, keyFile, signatureFile)
-    else:
+    elif mode == 'v':
+        (keyFile, messageFile, signatureFile) = sys.argv[2:]
         validateFromFile(signatureFile, messageFile, keyFile)
+    else:
+        if len(sys.argv) == 6:
+            (pubKeyFile, privKeyFile, signerFile, numBits) = sys.argv[2:]
+            with open(signerFile, 'r') as file:
+                (numBits, N, d) = [int(line) for line in file.readlines()]
+                signer = Key(numBits, N, d=d)
+        else:
+            signer = None
+            (pubKeyFile, privKeyFile, numBits) = sys.argv[2:]
+
+        createCertToFile(pubKeyFile, privKeyFile, signer, numBits)

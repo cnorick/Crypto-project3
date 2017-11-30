@@ -23,6 +23,8 @@ move_scripts:
 	chmod a+x cbcmac-validate
 	cp bash_scripts/cbcmac-tag.sh cbcmac-tag
 	chmod a+x cbcmac-tag
+	cp bash_scripts/rsa-keygen.sh rsa-keygen
+	chmod a+x rsa-keygen
 
 clean:
 	rm -fr src/lib
