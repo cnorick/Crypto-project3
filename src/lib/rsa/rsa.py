@@ -11,6 +11,9 @@ def enc(m, key):
         raise TypeError('key must be of type Key')
     if type(m) is not int:
         raise TypeError('m must be of type int')
+    if m.bit_length() > key.numBits // 2 - 2:
+        raise ValueError('m must not exceed (key.numBits // 2 - 2) bits.\
+         m is {} bits and key.numBits is {}. m must be no more than {} bits.'.format(m.bit_length(), key.numBits, key.numBits // 2 - 2))
     
     # mhat is an element in ZN*.
     mhat = addRandom(m, key)
