@@ -1,6 +1,7 @@
 from lib.rsa.helpers import Key, modExp 
 from Crypto.Hash import SHA256 as SHA
 import lib.rsa.rsa as rsa
+import sys
 
 def hash(message, key):
     '''
@@ -49,6 +50,18 @@ def validate(sig, message, key):
 
     # s^e = H(m)modN
     return modExp(sig, key) == hash(message, key)
+
+def validateFromFile(sigFile, messageFile, keyFile):
+    with open(sigFile, 'r') as file:
+        sig = int(file.read())
+    with open(messageFile, 'rb') as file:
+        message = file.read()
+    with open(keyFile, 'r') as file:
+        (numBits, N, e) = [int(line) for line in file.readlines()]
+        key = Key(numBits, N, e=e)
+    print(validate(sig, message, key))
+
+
 
 def signToFile(message, key, outFile):
     with open(outFile, 'w') as out:
@@ -116,5 +129,13 @@ def test():
     v = validate(s, m, pubKey)
     assert v == True
 
-# signFromFileToFile('../test/message','../test/privkey', '../test/out')
-createCertToFile('../test/testcertpub', '../test/testcertpriv')
+if __name__ == '__main__':
+    if len(sys.argv) != 5:
+        print("usage: python rsaSign.py s | v keyFile messageFile signatureFile")
+        sys.exit()
+
+    (mode, keyFile, messageFile, signatureFile) = sys.argv[1:]
+    if mode == 's':
+        signFromFileToFile(messageFile, keyFile, signatureFile)
+    else:
+        validateFromFile(signatureFile, messageFile, keyFile)
