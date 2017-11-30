@@ -61,8 +61,6 @@ def validateFromFile(sigFile, messageFile, keyFile):
         key = Key(numBits, N, e=e)
     print(validate(sig, message, key))
 
-
-
 def signToFile(message, key, outFile):
     with open(outFile, 'w') as out:
         out.write(str(sign(message, key)))

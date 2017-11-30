@@ -19,6 +19,10 @@ move_scripts:
 	chmod a+x rsa-sign
 	cp bash_scripts/rsa-validate.sh rsa-validate
 	chmod a+x rsa-validate
+	cp bash_scripts/cbcmac-validate.sh cbcmac-validate
+	chmod a+x cbcmac-validate
+	cp bash_scripts/cbcmac-tag.sh cbcmac-tag
+	chmod a+x cbcmac-tag
 
 clean:
 	rm -fr src/lib

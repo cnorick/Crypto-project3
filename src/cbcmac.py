@@ -1,4 +1,5 @@
 import lib.aes.cbc as cbc
+import sys
 
 def tag(message, key):
     '''
@@ -27,3 +28,22 @@ def test():
     tag = tag(m, key)
     v = validate(m, tag, key)
     assert v
+
+if __name__ == '__main__':
+    if len(sys.argv) != 5:
+        print("usage: python cbcmac.py t | v keyFile messageFile tagFile")
+        sys.exit()
+
+    (mode, keyFile, messageFile, tagFile) = sys.argv[1:]
+    with open(keyFile, 'rb') as file:
+        key = file.read()
+    with open(messageFile, 'rb') as file:
+        message = file.read()
+    if mode == 't':
+        with open(tagFile, 'wb') as file:
+            t = tag(message, key)
+            file.write(t)
+    else:
+        with open(tagFile, 'rb') as file:
+            t = file.read()
+            print(validate(message, t, key))
