@@ -10,6 +10,8 @@ Appends IV to beginning of ciphertext. If IV isn't provided, one is generated.
 def encrypt(message, key, IV = None):
     if (message is None) or (len(message) == 0):
         raise ValueError('message cannot be null or empty')
+    if type(key) is not bytes:
+        raise TypeError('key must be of type bytes')
     if IV is None:
         IV = generateIV(blockSize)
     
