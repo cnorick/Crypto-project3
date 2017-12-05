@@ -25,6 +25,10 @@ move_scripts:
 	chmod a+x cbcmac-tag
 	cp bash_scripts/rsa-keygen.sh rsa-keygen
 	chmod a+x rsa-keygen
+	cp bash_scripts/lock.sh lock
+	chmod a+x lock
+	cp bash_scripts/unlock.sh unlock
+	chmod a+x unlock
 
 clean:
 	rm -fr src/lib
