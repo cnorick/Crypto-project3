@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Parse cmd line args.
-while getopts ":p:r:s:n:" opt; do
+while getopts ":p:s:c:n:" opt; do
   case $opt in
     p)
       p=$OPTARG
       ;;
+    c)
+      c=$OPTARG
+      ;;
     s)
       s=$OPTARG
-      ;;
-    r)
-      r=$OPTARG
       ;;
     n)
       n=$OPTARG
@@ -36,16 +36,16 @@ if [ -z $n ]
     echo 'number of bits not specified'
     exit 1
 fi
-if [ -z $r ]
+if [ -z $s ]
   then
     echo 'Private key file not specifed'
     exit 1
 fi
 
-if [ -z $s ]
+if [ -z $c ]
   then
-    python3.6 src/rsaSign.py k $p $r $n
+    python3.6 src/rsaSign.py k $p $s $n
     exit 0
 fi
 
-python3.6 src/rsaSign.py k $p $r $s $n
+python3.6 src/rsaSign.py k $p $s $c $n
