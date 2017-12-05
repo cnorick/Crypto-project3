@@ -100,8 +100,7 @@ def createCert(signer=None, numBits = 516):
 
     # Sign the thumbprint of the public key file.
     thumbprint = generateThumbprint(pubKey)
-    sig = sign(thumbprint, privKey)
-
+    sig = sign(thumbprint, signer)
     return (pubKey, privKey, sig)
 
 
