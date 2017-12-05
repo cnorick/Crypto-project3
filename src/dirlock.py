@@ -1,10 +1,12 @@
 from Crypto.Hash import SHA256 as SHA
 from rsaSign import validate, generateThumbprint, createCert, signToFile
+from lib.rsa.helpers import Key
 import random
 import os
 import lib.rsa.rsa as rsa
 import lib.aes.cbc as cbc
 import cbcmac as mac
+import sys
 
 skmFilename = 'symmetric_key_manifest'
 
@@ -62,7 +64,7 @@ def decryptFile(filename, key):
         file.write(content)
 
 
-def lock(directory, unlockPubKey, lockPrivKey, unlockSig):
+def lock(directory, unlockPubKey, lockPrivKey, unlockSig, validatingKey):
     '''
     Encrypts all the files in directory using a random aes key. The aes key
     is encrypted with the unlocking party's public key and stored in symmetric_key_manifest.
@@ -70,7 +72,7 @@ def lock(directory, unlockPubKey, lockPrivKey, unlockSig):
     '''
     # Verify unlocker's public key integrity.
     thumbprint = generateThumbprint(unlockPubKey)
-    if not validate(unlockSig, thumbprint, unlockPubKey):
+    if not validate(unlockSig, thumbprint, validatingKey):
         raise IntegrityError('Unable to validate the integrity of the unlocking party’s public key information')
 
     # Get random AES key.
@@ -92,13 +94,13 @@ def lock(directory, unlockPubKey, lockPrivKey, unlockSig):
         with open(directory + '/' + file + '_tag', 'wb') as tagFile:
             tagFile.write(tag)
 
-def unlock(directory, lockPubKey, unlockPrivKey, lockSig):
+def unlock(directory, lockPubKey, unlockPrivKey, lockSig, validatingKey):
     '''
     Decrypts all the files in directory that were previously encrypted using lock.
     '''
     # Verify locker's public key.
     thumbprint = generateThumbprint(lockPubKey)
-    if not validate(lockSig, thumbprint, lockPubKey):
+    if not validate(lockSig, thumbprint, validatingKey):
         raise IntegrityError('Unable to validate the integrity of the locking party’s public key information')
     
     # Verify the integrity of the symmetric key manifest.
@@ -129,9 +131,40 @@ def unlock(directory, lockPubKey, unlockPrivKey, lockSig):
         # Decrypt encrypted files.
         decryptFile(directory + '/' + file, aesKeyToBytes(aesKey))
 
+    # Delete manifest
+    os.remove(skmFilename)
+    os.remove(skmFilename + '_sig')
 
-(lPubKey, lPrivKey, lSig) = createCert(numBits = 516) # 516 to fit the 256 bit aes key.
-(uPubKey, uPrivKey, uSig) = createCert(numBits = 516)
+def test():
+    (sPubKey, sPrivKey, _) = createCert(numBits = 516)
+    (lPubKey, lPrivKey, lSig) = createCert(signer = sPrivKey, numBits = 516) # 516 to fit the 256 bit aes key.
+    (uPubKey, uPrivKey, uSig) = createCert(numBits = 516, signer=sPrivKey)
 
-lock('../test/foo/', uPubKey, lPrivKey, uSig)
-unlock('../test/foo/', lPubKey, uPrivKey, lSig)
+    lock('../test/foo/', uPubKey, lPrivKey, uSig, sPubKey)
+    unlock('../test/foo/', lPubKey, uPrivKey, lSig, sPubKey)
+
+if __name__ == '__main__':
+    if len(sys.argv) != 6:
+        print("usage: python dirlock.py l | u directory actionPublicKey actionPrivateKey validatingPublicKey")
+        sys.exit()
+
+    (mode, directory, actPubKeyFile, actPrivKeyFile, valPubKeyFile) = sys.argv[1:]
+    
+    with open(actPubKeyFile, 'r') as file:
+        (numBits, N, e) = [int(line) for line in file.readlines()]
+        actPubKey = Key(numBits, N, e=e)
+    with open(actPrivKeyFile, 'r') as file:
+        (numBits, N, d) = [int(line) for line in file.readlines()]
+        actPrivKey = Key(numBits, N, d=d)
+    with open(valPubKeyFile, 'r') as file:
+        (numBits, N, e) = [int(line) for line in file.readlines()]
+        valPubKey = Key(numBits, N, e=e)
+
+    actPubKeySigFile = actPubKeyFile + '-casig'
+    with open(actPubKeySigFile, 'r') as file:
+        actPubKeySig = int(file.read())
+
+    if mode == 'l':
+        lock(directory, actPubKey, actPrivKey, actPubKeySig, valPubKey)
+    else:
+        unlock(directory, actPubKey, actPrivKey, actPubKeySig, valPubKey)

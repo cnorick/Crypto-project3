@@ -129,7 +129,7 @@ def test():
 if __name__ == '__main__':
     if len(sys.argv) not in (5,6):
         print("usage: python rsaSign.py s | v keyFile messageFile signatureFile\
-        python rsaSign.py k publicKey privateKey [signatureFile] numBits")
+        python rsaSign.py k publicKey privateKey [signerFile] numBits")
         sys.exit()
 
     mode = sys.argv[1]
