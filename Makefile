@@ -17,5 +17,11 @@ move_scripts:
 	chmod a+x rsa-keygen
 	chmod a+x lock
 
+test: move_scripts
+	cp bash_scripts/test.sh test_script
+	chmod a+x test_script
+	./test_script
+	rm test_script
+
 clean:
 	rm unlock rsa-validate rsa-sign cbcmac-validate cbcmac-tag rsa-keygen lock
