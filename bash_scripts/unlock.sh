@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Parse cmd line args.
-while getopts ":d:p:r:v:k:" opt; do
+while getopts ":d:p:r:vk:" opt; do
   case $opt in
     d)
       d=$OPTARG
@@ -48,10 +48,6 @@ if [ -z $v ] && [ -z $k ]
   then
     echo 'validating public key not specified'
     exit 1
-fi
-if [ -z $k ]
-  then
-    k=$v
 fi
 
 python3.6 src/dirlock.py u $d $p $r $k
