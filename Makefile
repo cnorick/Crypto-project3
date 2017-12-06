@@ -24,4 +24,4 @@ test: move_scripts
 	rm test_script
 
 clean:
-	rm unlock rsa-validate rsa-sign cbcmac-validate cbcmac-tag rsa-keygen lock
+	rm -rf unlock rsa-validate rsa-sign cbcmac-validate cbcmac-tag rsa-keygen lock test
